@@ -4,5 +4,6 @@ from django.http import HttpResponse
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login/', include('accounts.urls')),
     path('', include('dashboards.urls'))
 ]

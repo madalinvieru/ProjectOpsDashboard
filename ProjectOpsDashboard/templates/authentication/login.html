@@ -1,0 +1,50 @@
+{% extends 'layout/auth.html' %}
+
+{% block content %}
+
+<div class="container d-flex align-items-center justify-content-center">
+
+    <div class="card login-card shadow-lg">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold">Log In</h3>
+                <p class="text-muted mb-0">Sing in to your account</p>
+            </div>
+
+            <form method="POST" action="/login/">
+                {% csrf_token %}
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <label for="login-email" class="form-label">User Name</label>
+                        <input name="username" type="text" class="form-control" id="login-email" placeholder="john_doe" required>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <label for="login-password" class="form-label">Password</label>
+                        <input name="password" type="password" class="form-control" id="login-password" placeholder="*********" required>
+                    </div>
+                </div>
+
+                {% if message %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <span class="text-danger"><strong>{{ message }}</strong></span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-lg btn-primary">Sign In</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -13,13 +13,12 @@
 
     {% if customStyles %}
         {% for style in customStyles %}
-            <link rel="stylesheet" type="text/css" href="{% static 'css/' | add:style %}">
+            <link rel="stylesheet" type="text/css" href="{% static 'css/'|add:style %}">
         {% endfor %}
     {% endif %}
-
+    
 </head>
 <body>
-    {% include 'general/navbar.html' %}
 
     {% block content %}
     {% endblock %}

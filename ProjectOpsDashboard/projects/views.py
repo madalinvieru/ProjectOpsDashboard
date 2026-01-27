@@ -7,7 +7,14 @@ from .forms import ProjectForm
 
 @login_required(login_url='login-page')
 def projectsMainPage(request):
-    projectsList = Project.objects.all()
+    user = request.user
+
+    if user.role == 'manager':
+        projectsList = Project.objects.all()
+    elif user.role == 'member':
+        projectsList = Project.objects.filter(
+            tasks__assigned_to=user
+        ).distinct()
 
     return render(request, 'projects/projects-page.html', {
         'customStyles': ['css/projects/projects-page.css'],

@@ -1,9 +1,28 @@
 :root {
-    --bg-color: rgb(235, 208, 208);
+    --bg-color-1: rgb(253, 215, 215);
+    --bg-color-2: rgb(192, 201, 219);
     --server-error-field-color: rgb(240, 160, 50);
     --server-error-field-text-color: black;
+
+    /* Project status */
+    --pending-color: rgb(57, 57, 57);
+    --progress-color: rgb(201, 106, 18);
+    --finished-color: rgb(17, 255, 0);
+    --blocked-color: rgb(57, 112, 230);
+    --regected-color: rgb(204, 0, 0);
+}
+
+html,
+body {
+    height: 100%;
 }
 
 body {
-    background-color: var(--bg-color);
+    background: linear-gradient(135deg, var(--bg-color-1), var(--bg-color-2));
+}
+
+#submit-errors {
+    background-color: var(--server-error-field-color);
+    color: var(--server-error-field-text-color);
+    padding: 1rem;
 }

@@ -1,0 +1,171 @@
+{% extends 'layout/main.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+                    <form id="project-form" method="POST">
+                        {% csrf_token %}
+
+                        <div class="card-header">
+                            <h4>
+                                {% if edit %}
+                                    Edit Project
+                                {% else %}
+                                    Create New Project
+                                {% endif %}
+                            </h4>
+
+                            <div id="submit-errors"></div>
+                        </div>
+
+                        <div class="card-body">
+                            <input type="hidden" name="id" value="{{ project.id }}">
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label" for="project-name">Project Name <span class="text-danger">*</span></label>
+                                    <input type="text" id="project-name" class="form-control" name="name" value="{{ project.name }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label" for="project-description">Description</label>
+                                    <textarea id="project-description" class="form-control" name="description" rows="5">{{ project.description }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label" for="project-type">Type</label>
+                                    <input type="text" id="project-type" class="form-control" name="type" value="{{ project.type }}">
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label" for="project-location">Location</label>
+                                    <input type="text" id="project-location" class="form-control" name="location" value="{{ project.location }}">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label" for="project-start-date">Project Start Date</label>
+                                    <input type="date" id="project-start-date" class="form-control" name="start_date" value="{{ project.start_date }}">
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label" for="project-end-date">Project End Date</label>
+                                    <input type="date" id="project-end-date" class="form-control" name="end_date" value="{{ project.end_date }}">
+                                </div>
+                            </div>
+
+                            {% if edit %}
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label" for="project-status">Status</label>
+                                        <select class="form-select" id="project-status" name="status">
+                                            {% if constants.PROJECT_STATUS %}
+                                                {% for value, label in constants.PROJECT_STATUS %}
+                                                    <option value="{{ value }}" {% if value == project.status %} selected {% endif %}>{{ label }}</option>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </select>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="form-label" for="project-reason">Reasons for Blocked/Paused/Rejected</label>
+                                        <textarea id="project-reason" class="form-control" name="reason" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-footer d-flex justify-content-between">
+                            <button type="submit" id="project-submit" class="btn btn-success">
+                                {% if edit %}
+                                    Save changes
+                                {% else %}
+                                    Create
+                                {% endif %}
+                            </button>
+
+                            <button type="button" id="project-cancel" class="btn btn-secondary">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleReason() {
+            const status = $('#project-status').val();
+
+            if(status === 'blocked' || status === 'rejected') {
+                $('#project-reason').prop('disabled', false);
+            }
+            else {
+                $('#project-reason').prop('disabled', true);
+            }
+        }
+
+        $('#project-status').on('change', toggleReason);
+
+        $('#project-cancel').on('click', function () {
+            window.location.href= '/projects/';
+        });
+
+        $('#project-form').on('submit', function (event) {
+            event.preventDefault();
+
+            $('#submit-errors').text('').hide();
+
+            $.ajax({
+                url: '/projects/save/',
+                method: 'POST',
+                cache: false,
+                data: $(this).serialize(),
+                success: function(response) {
+                    switch(response.message) {
+                        case "SUCCESS":
+                            window.location.href= '/projects/';
+                            break;
+                        case "ERROR_UPDATE":
+                            $('#submit-errors').text('Error updating the project').show();
+                            break;
+                        case "ERROR_CREATE":
+                            $('#submit-errors').text('Error creating the new the project').show();
+                            break;
+                        case "INVALID_DATA":
+                            let errorText = "";
+
+                            for (const field in response.errors) {
+                                response.errors[field].forEach(error => {
+                                    errorText += (field + ": " + error);
+                                    errorText += "\n";
+                                });
+                            }
+
+                            $('#submit-errors').text(errorText).show();
+                            break;
+                        default:
+                            $('#submit-errors').text('Unknown error when saving the project').show();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+
+        /* ======== EXECUTIONS ======== */
+        $('#submit-errors').text('').hide();
+        toggleReason();
+    </script>
+{% endblock %}

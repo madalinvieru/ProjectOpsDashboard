@@ -1,0 +1,42 @@
+.card {
+    margin: 1rem;
+    border-radius: 10px;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.status-pending {
+    color: var(--pending-color);
+}
+
+.status-in_progress {
+    color: var(--progress-color);
+}
+
+.status-finished {
+    color: var(--finished-color);
+}
+
+.status-blocked {
+    color: var(--blocked-color);
+}
+
+.status-rejected {
+    color: var(--rejected-color);
+}
+
+@media (max-width: 992px) {
+    .projects-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+}

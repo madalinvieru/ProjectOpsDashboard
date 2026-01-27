@@ -1,0 +1,31 @@
+{% extends 'layout/main.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 d-flex justify-content-end">
+            <a class="btn btn-primary" href="{% url 'create-edit-project' 0 %}">Create New Project</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% if user.role == 'manager' %}
+                <h3>My projects</h3>
+            {% elif user.role == 'member' %}
+                <h3>Projects you are currently assigned in</h3>
+            {% endif %}
+
+            {% if projectsList %}
+                <div class="projects-grid">
+                    {% for project in projectsList %}
+                        {% include 'projects/components/project-element.html' %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="mt-5 ms-3"><em>There are currently no projects to see!</em></p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

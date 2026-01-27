@@ -16,13 +16,13 @@ def loginPage(request):
             return redirect('main-page')
         else:
             return render(request, 'authentication/login.html', {
-                'customStyles': ['auth.css'],
+                'customStyles': ['css/auth.css'],
                 'message': 'Invalid username or password'
             })
 
     if request.method == 'GET':
         return render(request, 'authentication/login.html', {
-            'customStyles': ['auth.css']
+            'customStyles': ['css/auth.css']
         })
 
 def signupPage(request):
@@ -31,24 +31,24 @@ def signupPage(request):
 
         if form.is_valid():
             User.objects.create_user(
-                last_name=form.cleaned_data.get("lastname", ""),
-                first_name=form.cleaned_data.get("firstname", ""),  # Returns empty string if the field does not exist.
+                last_name=form.cleaned_data.get('lastname', ''),
+                first_name=form.cleaned_data.get('firstname', ''),  # Returns empty string if the field does not exist.
                 username=form.cleaned_data['username'], # Used with dictionary indexing (throws error if not exists).
                 email=form.cleaned_data.get('email'),   # 'Get' returns 'None' if the field does not exist (optional field).
-                password=form.cleaned_data["password"],
+                password=form.cleaned_data['password'],
                 role=form.cleaned_data['role']
             )
             return redirect('login-page')
         else:
             return render(request, 'authentication/signup.html', {
-                'customStyles': ['auth.css'],
+                'customStyles': ['css/auth.css'],
                 'userRoles': constants.USER_ROLE,
                 'errors': form.errors
             })
 
     if request.method == 'GET':
         return render(request, 'authentication/signup.html', {
-            'customStyles': ['auth.css'],
+            'customStyles': ['css/auth.css'],
             'userRoles': constants.USER_ROLE
         })
 

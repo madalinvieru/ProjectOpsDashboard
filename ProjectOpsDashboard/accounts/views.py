@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from core import constants
 from .models import User
 from .forms import SignUpForm
@@ -12,7 +12,7 @@ def loginPage(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)
+            login(request, user)    # Adds the session in the database and the browser.
             return redirect('main-page')
         else:
             return render(request, 'authentication/login.html', {
@@ -51,3 +51,7 @@ def signupPage(request):
             'customStyles': ['auth.css'],
             'userRoles': constants.USER_ROLE
         })
+
+def logoutUser(request):
+    logout(request)
+    return redirect('login-page')

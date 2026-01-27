@@ -1,13 +1,15 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
-users = ['manager', 'member']
-
+@login_required(login_url='login-page')
 def mainPage(request):
-    currentUser = users[0]
+    currentUser = request.user
 
-    if currentUser == 'manager':
+    if currentUser.role == 'manager':
         return render(request, 'dashboard/manager-page.html', {
             'pageTitle': 'Manager Dashboard'
         })
     else:
-        return render(request, 'dashboard/member-page.html')
+        return render(request, 'dashboard/member-page.html', {
+            'pageTitle': 'Member Dashboard'
+        })

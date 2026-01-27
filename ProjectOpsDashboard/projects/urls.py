@@ -3,6 +3,12 @@ from . import views
 
 urlpatterns = [
     path('', views.projectsMainPage, name='projects-page'),
-    path('<int:id>/', views.createEditProject, name='create-edit-project'),
-    path('save/', views.saveProject, name='save-project')
+
+    path('create/', views.createProject, name='create-project'),
+    path('edit/<int:id>/', views.editProject, name='edit-project'),
+    path('save/', views.saveProject, name='save-project'),
+    path('view/<int:id>', views.viewProject, name='view-project'),
+
+    path('task/create/', views.createTask, name='create-task'),
+    path('task/edit/', views.editTask, name='edit-task')    
 ]

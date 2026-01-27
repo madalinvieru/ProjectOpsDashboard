@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Project
+from .models import Project, Task
 from core import constants
 from .forms import ProjectForm
+
+# ======== PROJECTS ========
 
 @login_required(login_url='login-page')
 def projectsMainPage(request):
@@ -23,24 +25,30 @@ def projectsMainPage(request):
     })
 
 @login_required(login_url='login-page')
-def createEditProject(request, id):
+def createProject(request):
     if request.user.role == 'manager':
-        if id == 0:
-            return render(request, 'projects/create-edit-project.html', {
-                'pageTitle': 'Create Project',
-                'edit': False,
-                'project': None,
-                'constants': constants
-            })
-        else:
-            project = get_object_or_404(Project, id=id)
+        return render(request, 'projects/create-edit-project.html', {
+            'pageTitle': 'Create Project',
+            'edit': False,
+            'project': None,
+            'constants': constants
+        })
+    else:
+        return render(request, '403.html', {
+            'pageTitle': 'Restricted Access'
+        })
 
-            return render(request, 'projects/create-edit-project.html', {
-                'pageTitle': 'Edit Project',
-                'edit': True,
-                'project': project,
-                'constants': constants
-            })
+@login_required(login_url='login-page')
+def editProject(request, id):
+    if request.user.role == 'manager':
+        project = get_object_or_404(Project, id=id)
+
+        return render(request, 'projects/create-edit-project.html', {
+            'pageTitle': 'Edit Project',
+            'edit': False,
+            'project': project,
+            'constants': constants
+        })
     else:
         return render(request, '403.html', {
             'pageTitle': 'Restricted Access'
@@ -97,6 +105,52 @@ def saveProject(request):
                 "errors": form.errors
             })
     else:
-        return render('403.html', {
+        return render(request, '403.html', {
             'pageTitle': 'Restricted Access'
         })
+
+@login_required(login_url='login-page')
+def viewProject(request, id):
+    return render(request, 'projects/view-project.html', {
+        'pageTitle': 'View Project'
+    })
+
+# ======== TASKS ========
+
+@login_required(login_url='login-page')
+def createTask(request, projectID):
+    project = get_object_or_404(Project, id=projectID)
+
+    if request.user.role == 'member':
+        # Test if the user has access on the project.
+        if not project.tasks.filter(
+            assigned_to=request.user
+        ).exists():
+            return render(request, '403.html', {
+                'pageTitle': 'Restricted Access'
+            })
+
+    return render(request, 'tasks/create-edit-task.html', {
+        'pageTitle': 'Create Task',
+        'edit': False,
+        'task': None,
+        'constants': constants
+    })
+
+@login_required(login_url='login-page')
+def editTask(request, id):
+    task = get_object_or_404(Task, id=id)
+
+    if request.user.role == 'member':
+        # Test if the user has access on the task to edit it.
+        if not task.assigned_to.filter(id=request.user.id).exists():
+            return render(request, '403.html', {
+                'pageTitle': 'Restricted Access'
+            })
+
+    return render(request, 'tasks/create-edit-task.html', {
+        'pageTitle': 'Edit Task',
+        'edit': True,
+        'task': task,
+        'constants': constants
+    })

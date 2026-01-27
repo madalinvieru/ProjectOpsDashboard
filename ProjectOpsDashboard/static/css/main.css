@@ -1,5 +1,7 @@
 :root {
-    --bg-color: rgb(235, 208, 208)
+    --bg-color: rgb(235, 208, 208);
+    --server-error-field-color: rgb(240, 160, 50);
+    --server-error-field-text-color: black;
 }
 
 body {

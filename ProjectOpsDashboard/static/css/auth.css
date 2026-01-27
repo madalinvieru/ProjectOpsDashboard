@@ -16,3 +16,8 @@ html, body {
 .login-card .card-body {
     padding: 2.5rem;
 }
+
+.server-error-message {
+    background-color: var(--server-error-field-color);
+    color: var(--server-error-field-text-color);
+}

@@ -1,0 +1,177 @@
+{% extends 'layout/auth.html' %}
+
+{% block content %}
+
+<div class="container d-flex align-items-center justify-content-center">
+
+    <div class="card login-card shadow-lg">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold">Sign Up</h3>
+                <p class="text-muted mb-0">Create account</p>
+            </div>
+
+            <div class="server-error-message {% if not errors %} d-none {% endif %}">
+                {% if error %}
+                    {% for field, messages in error.items %}
+                        {% for message in messages %}
+                            <div class="d-block">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <form id="signup-form" method="POST" action="/signup/">
+                {% csrf_token %}
+
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <label for="signup-firstname" class="form-label">First Name</label>
+                        <input name="firstname" type="text" class="form-control" id="signup-firstname" placeholder="John">
+                        <small class="msg msg-firstname text-danger"></small>
+                    </div>
+
+                    <div class="col-6">
+                        <label for="signup-lastname" class="form-label">Last Name</label>
+                        <input name="lastname" type="text" class="form-control" id="signup-lastname" placeholder="Doe">
+                        <small class="msg msg-lastname text-danger"></small>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <label for="signup-username" class="form-label">User Name <span class="text-danger">*</span></label>
+                        <input name="username" type="text" class="form-control" id="signup-username" placeholder="john_doe" required>
+                        <small class="msg msg-username text-danger"></small>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <label for="signup-email" class="form-label">Email</label>
+                        <input name="email" type="email" class="form-control" id="signup-email" placeholder="johndoe@email.com">
+                        <small class="msg msg-email text-danger"></small>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <label for="signup-password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input name="password" type="password" class="form-control" id="signup-password" placeholder="*********" required>
+                        <small class="msg msg-password text-danger"></small>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <label for="signup-re-password" class="form-label">Re-enter Password <span class="text-danger">*</span></label>
+                        <input name="re_password" type="password" class="form-control" id="signup-re-password" placeholder="*********" required>
+                        <small class="msg msg-re-password text-danger"></small>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <label for="signup-role" class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" id="signup-role" name="role">
+                            {% if userRoles %}
+                                {% for value, label in userRoles %}
+                                    {% if value != 'superuser' %}
+                                        <option value="{{ value }}" {% if value == 'member' %} selected {% endif %}>{{ label }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-lg btn-primary">Create Account</button>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <small>Already have an account! <a href="/login/"><strong>Log In Here!</strong></a></small>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function showErrorMessage(messageElement, messagetext) {
+        $(`.${ messageElement }`).text(messagetext).show();
+    }
+
+    function validateForm() {
+        // Reset all messages.
+        $('.msg').text('').hide();
+
+        let isValid = true;
+
+        const firstname = $('#signup-firstname').val().trim();
+        const lastname = $('#signup-lastname').val().trim();
+        const username = $('#signup-username').val().trim();
+        const email = $('#signup-email').val().trim();
+        const password = $('#signup-password').val().trim();
+        const repassword = $('#signup-re-password').val().trim();
+
+        if(firstname.length > 150) {
+            showErrorMessage('msg-firstname', 'Max 150 characters');
+            isValid = false;
+        }
+
+        if(lastname.length > 150) {
+            showErrorMessage('msg-lastname', 'Max 150 characters');
+            isValid = false;
+        }
+
+        if(username.length < 3 || username.length > 150) {
+            showErrorMessage('msg-username', 'Between 3 and 150 characters');
+            isValid = false;
+        }
+
+        if(!(/^[\w.@+-]+$/.test(username))) {
+            showErrorMessage('msg-username', 'Only letters, numbers, _.@+-');
+            isValid = false;
+        }
+
+        if(email !== '' && !(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+            showErrorMessage('msg-email', 'Invalid email');
+            isValid = false;
+        }
+
+        if(password.length < 8) {
+            showErrorMessage('msg-password', 'Min 8 characters');
+            isValid = false;
+        }
+
+        if(password.length > 256) {
+            showErrorMessage('msg-password', 'Max 256 characters'); // Imposing a resonable limit.
+            isValid = false;
+        }
+
+        if(password !== repassword) {
+            showErrorMessage('msg-re-password', 'Must match the password');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    $('#signup-form').on('submit', function (event) {
+        event.preventDefault();
+
+        if(validateForm()) {
+            this.submit();
+        }
+    });
+</script>
+
+{% endblock %}

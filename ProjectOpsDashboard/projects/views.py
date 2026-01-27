@@ -76,7 +76,7 @@ def saveProject(request):
                         type=form.cleaned_data.get('type', ''),
                         start_date=form.cleaned_data.get('start_date', ''),
                         end_date=form.cleaned_data.get('end_date', ''),
-                        status=form.cleaned_data.get('status', 'pending'),
+                        status=form.cleaned_data.get('status', 'pending') or 'pending',
                         reason=form.cleaned_data.get('reason', '')
                     )
 

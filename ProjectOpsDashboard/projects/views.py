@@ -35,7 +35,7 @@ def createEditProject(request, id):
                 'constants': constants
             })
     else:
-        return render('403.html', {
+        return render(request, '403.html', {
             'pageTitle': 'Restricted Access'
         })
 

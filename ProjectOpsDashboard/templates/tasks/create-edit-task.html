@@ -22,7 +22,7 @@
                         </div>
 
                         <div class="card-body">
-                            <input type="hidden" name="project" value="{{ projectID }}">
+                            <input type="hidden" name="projectID" value="{{ projectID }}">
 
                             <input type="hidden" name="id" value="{{ task.id }}">
 
@@ -102,7 +102,7 @@
 
     <script>
         $('#project-cancel').on('click', function () {
-            window.location.href= '/projects/view/{{ projectID }}/';
+            window.location.href= '/projects/view/{{ projectID }}';
         });
 
         $('#task-form').on('submit', function (event) {
@@ -118,7 +118,7 @@
                 success: function(response) {
                     switch(response.message) {
                         case "SUCCESS":
-                            window.location.href= '/projects/view/{{ projectID }}/';
+                            window.location.href= '/projects/view/{{ projectID }}';
                             break;
                         case "ERROR_UPDATE":
                             $('#submit-errors').text('Error updating the task').show();

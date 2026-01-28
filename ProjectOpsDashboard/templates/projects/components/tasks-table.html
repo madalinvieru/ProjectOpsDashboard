@@ -27,7 +27,7 @@
                         <td>{{ task.status }}</td>
                         <td>{{ task.priority }}</td>
                         <td>
-                            <a class="btn btn-sm btn-primary" href="">Edit</a>
+                            <a class="btn btn-sm btn-primary" href="{% url 'edit-task' task.id %}">Edit</a>
                         </td>
                     </tr>
                 {% endfor %}

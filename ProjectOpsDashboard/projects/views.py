@@ -93,7 +93,8 @@ def saveProject(request):
                         start_date=form.cleaned_data.get('start_date', ''),
                         end_date=form.cleaned_data.get('end_date', ''),
                         status=form.cleaned_data.get('status', 'pending') or 'pending',
-                        reason=form.cleaned_data.get('reason', '')
+                        reason=form.cleaned_data.get('reason', ''),
+                        created_by=request.user
                     )
 
                     return JsonResponse({ "message": "SUCCESS" })
@@ -116,7 +117,7 @@ def viewProject(request, id):
         # Test if the member has access to the project (at least one task assigned to him).
         allowed = Project.objects.filter(
             id=id,
-            task__assigned_to=request.user
+            tasks__assigned_to=request.user
         ).exists()
 
         if not allowed:
@@ -169,7 +170,7 @@ def editTask(request, id):
 
     if request.user.role == 'member':
         # Test if the user has access on the task to edit it.
-        if not task.assigned_to.filter(id=request.user.id).exists():
+        if not task.assigned_to != request.user:
             return render(request, '403.html', {
                 'pageTitle': 'Restricted Access'
             })
@@ -181,7 +182,7 @@ def editTask(request, id):
         'edit': True,
         'task': task,
         'constants': constants,
-        'projectID': None,
+        'projectID': task.project.id,
         'users': users
     })
 
@@ -189,28 +190,32 @@ def editTask(request, id):
 def saveTask(request):
     taskID = request.POST.get('id', None)
 
-    form = TaskForm(request.POST, user_id=request.user.id, task_status=constants.TASK_STATUS, task_priority=constants.TASK_PRIORITY)
+    form = TaskForm(request.POST, task_status=constants.TASK_STATUS, task_priority=constants.TASK_PRIORITY)
 
     if form.is_valid():
         if taskID:
-            # UPDATE
-            rowsUpdated = Task.objects.filter(
-                id=taskID
-            ).update(
-                title=form.cleaned_data['title'],
-                description=form.cleaned_data.get('description'),
-                project_id=request.POST.get('projectID'),
-                assigned_to=form.cleaned_data.get('assigned_to'),
-                start_date=form.cleaned_data.get('start_date'),
-                end_date=form.cleaned_data.get('end_date'),
-                status=form.cleaned_data.get('status'),
-                priority=form.cleaned_data.get('priority'),
-                parent_id=form.cleaned_data.get('parent')
-            )
+            try:
+                # UPDATE
+                rowsUpdated = Task.objects.filter(
+                    id=taskID
+                ).update(
+                    title=form.cleaned_data['title'],
+                    description=form.cleaned_data.get('description'),
+                    project_id=request.POST.get('projectID'),
+                    assigned_to_id=form.cleaned_data.get('assigned_to').id if form.cleaned_data.get('assigned_to') else None,
+                    start_date=form.cleaned_data.get('start_date'),
+                    end_date=form.cleaned_data.get('end_date'),
+                    status=form.cleaned_data.get('status'),
+                    priority=form.cleaned_data.get('priority'),
+                    parent_id=form.cleaned_data.get('parent')
+                )
 
-            if rowsUpdated:
-                return JsonResponse({ "message": "SUCCESS" })
-            else:
+                if rowsUpdated:
+                    return JsonResponse({ "message": "SUCCESS" })
+                else:
+                    return JsonResponse({ "message": "ERROR_UPDATE" })
+            except Exception as e:
+                print("Error in editing an existing task:", e)
                 return JsonResponse({ "message": "ERROR_UPDATE" })
         else:
             # CREATE

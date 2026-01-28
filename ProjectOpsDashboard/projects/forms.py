@@ -91,13 +91,12 @@ class TaskForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        user_id = kwargs.pop('user_id', 0)
         task_status = kwargs.pop('task_status', [])
         task_priority = kwargs.pop('task_priority', [])
 
         super().__init__(*args, **kwargs)
 
-        self.fields['assigned_to'].queryset = User.objects.filter(id=user_id)
+        self.fields['assigned_to'].queryset = User.objects.all()
         self.fields['status'].choices = task_status
         self.fields['priority'].choices = task_priority
 

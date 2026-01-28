@@ -23,6 +23,7 @@
 
         <div class="progress mt-3" style="height: 8px;">
             <div class="progress-bar" role="progressbar"
+            style="width: {{ project.completion_percentage }}%;"
             aria-valuenow="{{ project.completion_percentage }}"
             aria-valuemin="0"
             aria-valuemax="100">

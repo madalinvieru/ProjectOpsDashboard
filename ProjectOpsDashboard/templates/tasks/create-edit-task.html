@@ -1,0 +1,60 @@
+{% extends 'layout/main.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+                    <form id="task-form" method="POST">
+                        {% csrf_token %}
+
+                        <div class="card-header">
+                            <h4>
+                                {% if edit %}
+                                    Edit task
+                                {% else %}
+                                    Create New task
+                                {% endif %}
+                            </h4>
+
+                            <div id="submit-errors"></div>
+                        </div>
+
+                        <div class="card-body">
+                            {% if edit %}
+                                <input type="hidden" name="project" value="{{ task.project }}">
+                            {% else %}
+                                <input type="hidden" name="project" value="{{ projectID }}">
+                            {% endif %}
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label" for="task-title">Title <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="task-title" name="title" value="{{ task.title }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <select class="form-select" name="assigned_to[]" multiple>
+                                        {% for u in users %}
+                                            <option value="{{ u.id }}">{{ u.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label></label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

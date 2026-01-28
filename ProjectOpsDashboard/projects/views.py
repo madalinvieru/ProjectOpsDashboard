@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Project, Task
 from core import constants
 from .forms import ProjectForm
+from accounts.models import User
 
 # ======== PROJECTS ========
 
@@ -45,7 +46,7 @@ def editProject(request, id):
 
         return render(request, 'projects/create-edit-project.html', {
             'pageTitle': 'Edit Project',
-            'edit': False,
+            'edit': True,
             'project': project,
             'constants': constants
         })
@@ -129,12 +130,16 @@ def createTask(request, projectID):
             return render(request, '403.html', {
                 'pageTitle': 'Restricted Access'
             })
+    
+    users = User.objects.all()
 
     return render(request, 'tasks/create-edit-task.html', {
         'pageTitle': 'Create Task',
         'edit': False,
         'task': None,
-        'constants': constants
+        'constants': constants,
+        'projectID': projectID,
+        'users': users
     })
 
 @login_required(login_url='login-page')
@@ -147,10 +152,14 @@ def editTask(request, id):
             return render(request, '403.html', {
                 'pageTitle': 'Restricted Access'
             })
+    
+    users = User.objects.all()
 
     return render(request, 'tasks/create-edit-task.html', {
         'pageTitle': 'Edit Task',
         'edit': True,
         'task': task,
-        'constants': constants
+        'constants': constants,
+        'projectID': None,
+        'users': users
     })

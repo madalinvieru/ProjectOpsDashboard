@@ -9,6 +9,7 @@ urlpatterns = [
     path('save/', views.saveProject, name='save-project'),
     path('view/<int:id>', views.viewProject, name='view-project'),
 
-    path('task/create/', views.createTask, name='create-task'),
-    path('task/edit/', views.editTask, name='edit-task')    
+    path('task/create/<int:projectID>/', views.createTask, name='create-task'),
+    path('task/edit/', views.editTask, name='edit-task'),
+    path('task/save/', views.saveTask, name='save-task')
 ]

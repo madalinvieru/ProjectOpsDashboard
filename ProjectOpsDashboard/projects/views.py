@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Project, Task
 from core import constants
-from .forms import ProjectForm
+from .forms import ProjectForm, TaskForm
 from accounts.models import User
 
 # ======== PROJECTS ========
@@ -112,8 +112,29 @@ def saveProject(request):
 
 @login_required(login_url='login-page')
 def viewProject(request, id):
+    if request.user.role == 'member':
+        # Test if the member has access to the project (at least one task assigned to him).
+        allowed = Project.objects.filter(
+            id=id,
+            task__assigned_to=request.user
+        ).exists()
+
+        if not allowed:
+            return render(request, '403.html', {
+                'pageTitle': 'Restricted Access'
+            })
+        
+    # Get the project.
+    project = get_object_or_404(Project, id=id)
+
+    # Get the project's tasks.
+    tasks = Task.objects.filter(project_id=id)
+
     return render(request, 'projects/view-project.html', {
-        'pageTitle': 'View Project'
+        'customStyles': ['css/projects/projects-page.css'],
+        'pageTitle': 'View Project',
+        'project': project,
+        'tasks': tasks
     })
 
 # ======== TASKS ========
@@ -163,3 +184,56 @@ def editTask(request, id):
         'projectID': None,
         'users': users
     })
+
+@login_required(login_url='login-page')
+def saveTask(request):
+    taskID = request.POST.get('id', None)
+
+    form = TaskForm(request.POST, user_id=request.user.id, task_status=constants.TASK_STATUS, task_priority=constants.TASK_PRIORITY)
+
+    if form.is_valid():
+        if taskID:
+            # UPDATE
+            rowsUpdated = Task.objects.filter(
+                id=taskID
+            ).update(
+                title=form.cleaned_data['title'],
+                description=form.cleaned_data.get('description'),
+                project_id=request.POST.get('projectID'),
+                assigned_to=form.cleaned_data.get('assigned_to'),
+                start_date=form.cleaned_data.get('start_date'),
+                end_date=form.cleaned_data.get('end_date'),
+                status=form.cleaned_data.get('status'),
+                priority=form.cleaned_data.get('priority'),
+                parent_id=form.cleaned_data.get('parent')
+            )
+
+            if rowsUpdated:
+                return JsonResponse({ "message": "SUCCESS" })
+            else:
+                return JsonResponse({ "message": "ERROR_UPDATE" })
+        else:
+            # CREATE
+            try:
+                newTask = Task.objects.create(
+                    title=form.cleaned_data['title'],
+                    description=form.cleaned_data.get('description'),
+                    project_id=request.POST.get('projectID'),
+                    assigned_to=form.cleaned_data.get('assigned_to'),
+                    start_date=form.cleaned_data.get('start_date'),
+                    end_date=form.cleaned_data.get('end_date'),
+                    status=form.cleaned_data.get('status') or 'pending',
+                    priority=form.cleaned_data.get('priority') or 'none',
+                    parent_id=form.cleaned_data.get('parent'),
+                    created_by=request.user
+                )
+
+                return JsonResponse({ "message": "SUCCESS" })
+            except Exception as e:
+                print("Error in creating a new task:", e)
+                return JsonResponse({ "message": "ERROR_CREATE" })
+    else:
+        return JsonResponse({
+            "message": "INVALID_DATA",
+            "errors": form.errors
+        }) 

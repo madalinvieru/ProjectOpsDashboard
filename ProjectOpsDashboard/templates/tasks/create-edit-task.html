@@ -22,11 +22,9 @@
                         </div>
 
                         <div class="card-body">
-                            {% if edit %}
-                                <input type="hidden" name="project" value="{{ task.project }}">
-                            {% else %}
-                                <input type="hidden" name="project" value="{{ projectID }}">
-                            {% endif %}
+                            <input type="hidden" name="project" value="{{ projectID }}">
+
+                            <input type="hidden" name="id" value="{{ task.id }}">
 
                             <div class="row mb-3">
                                 <div class="col-12">
@@ -37,9 +35,9 @@
 
                             <div class="row mb-3">
                                 <div class="col-12">
-                                    <select class="form-select" name="assigned_to[]" multiple>
+                                    <select class="form-select" name="assigned_to">
                                         {% for u in users %}
-                                            <option value="{{ u.id }}">{{ u.username }}</option>
+                                            <option value="{{ u.id }}" {% if u.id == task.assigned_to %} selected {% endif %}>{{ u.username }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -47,9 +45,53 @@
 
                             <div class="row mb-3">
                                 <div class="col-6">
-                                    <label></label>
+                                    <label class="form-label" for="task-start-date">Start Date</label>
+                                    <input type="date" class="form-control" name="start_date" id="task-start-date" value="{{ task.start_date }}">
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label" for="task-end-date">End Date</label>
+                                    <input type="date" class="form-control" name="end_date" id="task-end-date" value="{{ task.end_date }}">
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label" for="task-status">Status</label>
+                                    <select class="form-select" id="task-status" name="status">
+                                        {% if constants.TASK_STATUS %}
+                                            {% for value, label in constants.TASK_STATUS %}
+                                                <option value="{{ value }}" {% if value == task.status %} selected {% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label" for="task-priority">Priority</label>
+                                    <select class="form-select" id="task-priority" name="priority">
+                                        {% if constants.TASK_PRIORITY %}
+                                            {% for value, label in constants.TASK_PRIORITY %}
+                                                <option value="{{ value }}" {% if value == task.priority %} selected {% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer d-flex justify-content-between">
+                            <button type="submit" id="task-submit" class="btn btn-success">
+                                {% if edit %}
+                                    Save changes
+                                {% else %}
+                                    Create
+                                {% endif %}
+                            </button>
+
+                            <button type="button" id="task-cancel" class="btn btn-secondary">
+                                Cancel
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -57,4 +99,56 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $('#project-cancel').on('click', function () {
+            window.location.href= '/projects/view/{{ projectID }}/';
+        });
+
+        $('#task-form').on('submit', function (event) {
+            event.preventDefault();
+
+            $('#submit-errors').text('').hide();
+
+            $.ajax({
+                url: '/projects/task/save/',
+                method: 'POST',
+                cache: false,
+                data: $(this).serialize(),
+                success: function(response) {
+                    switch(response.message) {
+                        case "SUCCESS":
+                            window.location.href= '/projects/view/{{ projectID }}/';
+                            break;
+                        case "ERROR_UPDATE":
+                            $('#submit-errors').text('Error updating the task').show();
+                            break;
+                        case "ERROR_CREATE":
+                            $('#submit-errors').text('Error creating the new the task').show();
+                            break;
+                        case "INVALID_DATA":
+                            let errorText = "";
+
+                            for (const field in response.errors) {
+                                response.errors[field].forEach(error => {
+                                    errorText += (field + ": " + error);
+                                    errorText += "\n";
+                                });
+                            }
+
+                            $('#submit-errors').text(errorText).show();
+                            break;
+                        default:
+                            $('#submit-errors').text('Unknown error when saving the task').show();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+
+        /* ======== EXECUTIONS ======== */
+        $('#submit-errors').text('').hide();
+    </script>
 {% endblock %}

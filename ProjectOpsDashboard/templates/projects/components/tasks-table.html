@@ -1,0 +1,39 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title">Tasks</h5>
+    </div>
+
+    <div class="card-body">
+        {% if tasks %}
+            <table class="table table-stripped table-hover">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Assigned To</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+
+                {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.assigned_to }}</td>
+                        <td>{{ task.start_date }}</td>
+                        <td>{{ task.end_date }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>{{ task.priority }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" href="">Edit</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p><em>This project has no tasks yet!</em></p>
+        {% endif %}
+    </div>
+</div>

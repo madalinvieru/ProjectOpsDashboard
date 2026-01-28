@@ -1,5 +1,23 @@
 {% extends 'layout/main.html' %}
 
 {% block content %}
-<h1>Welcome View Project!</h1>
+<div class="container mt-5">
+    <div class="row mt-5">
+        <div class="col-12">
+            {% include 'projects/components/project-details.html' %}
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 d-flex justify-content-end">
+            <a class="btn btn-primary" href="{% url 'create-task' project.id %}">Add Task</a>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-12">
+            {% include 'projects/components/tasks-table.html' %}
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -37,7 +37,7 @@
                                 <div class="col-12">
                                     <select class="form-select" name="assigned_to">
                                         {% for u in users %}
-                                            <option value="{{ u.id }}" {% if u.id == task.assigned_to %} selected {% endif %}>{{ u.username }}</option>
+                                            <option value="{{ u.id }}" {% if u.id == task.assigned_to_id %} selected {% endif %}>{{ u.username }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -46,12 +46,12 @@
                             <div class="row mb-3">
                                 <div class="col-6">
                                     <label class="form-label" for="task-start-date">Start Date</label>
-                                    <input type="date" class="form-control" name="start_date" id="task-start-date" value="{{ task.start_date }}">
+                                    <input type="date" class="form-control" name="start_date" id="task-start-date" value="{{ task.start_date|date:'Y-m-d' }}">
                                 </div>
 
                                 <div class="col-6">
                                     <label class="form-label" for="task-end-date">End Date</label>
-                                    <input type="date" class="form-control" name="end_date" id="task-end-date" value="{{ task.end_date }}">
+                                    <input type="date" class="form-control" name="end_date" id="task-end-date" value="{{ task.end_date|date:'Y-m-d' }}">
                                 </div>
                             </div>
 

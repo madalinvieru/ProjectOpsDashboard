@@ -53,12 +53,12 @@
                             <div class="row mb-3">
                                 <div class="col-6">
                                     <label class="form-label" for="project-start-date">Project Start Date</label>
-                                    <input type="date" id="project-start-date" class="form-control" name="start_date" value="{{ project.start_date }}">
+                                    <input type="date" id="project-start-date" class="form-control" name="start_date" value="{{ project.start_date|date:'Y-m-d' }}">
                                 </div>
 
                                 <div class="col-6">
                                     <label class="form-label" for="project-end-date">Project End Date</label>
-                                    <input type="date" id="project-end-date" class="form-control" name="end_date" value="{{ project.end_date }}">
+                                    <input type="date" id="project-end-date" class="form-control" name="end_date" value="{{ project.end_date|date:'Y-m-d' }}">
                                 </div>
                             </div>
 

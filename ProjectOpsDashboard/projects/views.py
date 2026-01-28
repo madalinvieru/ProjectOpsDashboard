@@ -210,6 +210,8 @@ def saveTask(request):
                     parent_id=form.cleaned_data.get('parent')
                 )
 
+                updateProjectStatus(request.POST.get('projectID'))
+
                 if rowsUpdated:
                     return JsonResponse({ "message": "SUCCESS" })
                 else:
@@ -233,6 +235,8 @@ def saveTask(request):
                     created_by=request.user
                 )
 
+                updateProjectStatus(request.POST.get('projectID'))
+
                 return JsonResponse({ "message": "SUCCESS" })
             except Exception as e:
                 print("Error in creating a new task:", e)
@@ -241,4 +245,32 @@ def saveTask(request):
         return JsonResponse({
             "message": "INVALID_DATA",
             "errors": form.errors
-        }) 
+        })
+
+def updateProjectStatus(project_id):
+    try:
+        project = Project.objects.get(id=project_id)
+        
+        # Get all top-level tasks (tasks without parent).
+        tasks = project.tasks.filter(parent__isnull=True)
+        
+        if not tasks.exists():
+            # Keep the current status of the project.
+            return
+        
+        # Check if all tasks are completed.
+        allCompleted = all(task.is_completed() for task in tasks)
+        
+        if allCompleted:
+            project.status = 'finished'
+        else:
+            # Don't override 'blocked' or 'rejected' statuses.
+            if project.status in ['pending', 'finished']:
+                project.status = 'in_progress'
+        
+        project.save()
+        
+    except Project.DoesNotExist:
+        print(f"Project with ID {project_id} does not exist")
+    except Exception as e:
+        print(f"Error updating project status: {e}")
